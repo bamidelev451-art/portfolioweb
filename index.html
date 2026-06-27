@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portfolio | Creative Developer</title>
+    <title>Portfolio | Victor Kayode – Creative Developer</title>
     <meta name="description" content="Portfolio of Victor Kayode, a creative full-stack developer specializing in premium digital experiences.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,13 +11,19 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+    <!-- Background Blobs -->
     <div class="blob-bg"></div>
     <div class="blob-bg blob-2"></div>
-    
-    <nav class="navbar glass-effect">
+
+    <!-- Navigation -->
+    <nav class="navbar glass-effect" id="navbar">
         <div class="nav-content">
             <a href="#" class="logo">Victor<span class="highlight">.</span></a>
-            <ul class="nav-links">
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-links" id="navLinks">
                 <li><a href="#about">About</a></li>
                 <li><a href="#projects">Projects</a></li>
                 <li><a href="#experience">Experience</a></li>
@@ -28,12 +34,18 @@
     </nav>
 
     <main>
+        <!-- ===== HERO ===== -->
         <section id="hero" class="hero section">
             <div class="hero-content fade-in-up">
                 <p class="greeting">Hi, I'm</p>
                 <h1 class="hero-title">Victor Kayode</h1>
-                <h2 class="hero-subtitle">Building <span class="gradient-text typed-text"></span><span class="cursor">&nbsp;</span> that inspire.</h2>
-                <p class="hero-desc">I'm a passionate full-stack developer and designer focused on creating premium, interactive, and user-centric applications.</p>
+                <h2 class="hero-subtitle">
+                    Building <span class="gradient-text typed-text"></span><span class="cursor">&nbsp;</span> that inspire.
+                </h2>
+                <p class="hero-desc">
+                    I'm a passionate full-stack developer and designer focused on creating
+                    premium, interactive, and user-centric applications.
+                </p>
                 <div class="hero-cta">
                     <a href="#projects" class="btn-primary btn-large">View My Work</a>
                     <a href="#contact" class="btn-secondary btn-large">Contact Me</a>
@@ -46,6 +58,7 @@
             </div>
         </section>
 
+        <!-- ===== ABOUT ===== -->
         <section id="about" class="about section">
             <div class="section-header fade-in-up">
                 <h2>About Me</h2>
@@ -53,120 +66,225 @@
             </div>
             <div class="about-grid">
                 <div class="about-text fade-in-up">
-                    <p>Hello! I'm Victor, a creative developer with a passion for building beautiful, responsive, and intuitive digital solutions. My journey in tech started with a love for design and evolved into full-stack development.</p>
-                    <p>Fast-forward to today, and I've had the privilege of working with amazing clients to build software that makes a difference. I specialize in modern Javascript ecosystems and stunning CSS.</p>
-                    <div class="skills">
-                        <span class="skill-tag">JavaScript (ES6+)</span>
-                        <span class="skill-tag">React & Next.js</span>
-                        <span class="skill-tag">Node.js</span>
-                        <span class="skill-tag">HTML & Vanilla CSS</span>
-                        <span class="skill-tag">UI/UX Design</span>
-                        <span class="skill-tag">Figma</span>
+                    <p>
+                        I'm a <strong>full-stack developer and UI/UX designer</strong> with a passion for
+                        crafting digital experiences that are both beautiful and highly functional.
+                        I love turning complex problems into elegant, intuitive interfaces.
+                    </p>
+                    <p>
+                        When I'm not coding, I'm usually designing in Figma, exploring new technologies,
+                        or building tools that make people's lives easier.
+                    </p>
+                    <a href="#contact" class="btn-primary" style="margin-top:1.5rem;display:inline-block;">Let's Work Together</a>
+                </div>
+                <div class="skills-grid fade-in-up delay-1">
+                    <div class="skill-card glass-effect">
+                        <span class="skill-icon">⚛️</span>
+                        <span>React</span>
+                    </div>
+                    <div class="skill-card glass-effect">
+                        <span class="skill-icon">▲</span>
+                        <span>Next.js</span>
+                    </div>
+                    <div class="skill-card glass-effect">
+                        <span class="skill-icon">🟢</span>
+                        <span>Node.js</span>
+                    </div>
+                    <div class="skill-card glass-effect">
+                        <span class="skill-icon">🟨</span>
+                        <span>JavaScript</span>
+                    </div>
+                    <div class="skill-card glass-effect">
+                        <span class="skill-icon">🎨</span>
+                        <span>Figma</span>
+                    </div>
+                    <div class="skill-card glass-effect">
+                        <span class="skill-icon">🗄️</span>
+                        <span>MongoDB</span>
+                    </div>
+                    <div class="skill-card glass-effect">
+                        <span class="skill-icon">🐘</span>
+                        <span>PostgreSQL</span>
+                    </div>
+                    <div class="skill-card glass-effect">
+                        <span class="skill-icon">🌐</span>
+                        <span>HTML &amp; CSS</span>
                     </div>
                 </div>
             </div>
         </section>
 
+        <!-- ===== PROJECTS ===== -->
         <section id="projects" class="projects section">
             <div class="section-header fade-in-up">
-                <h2>Selected Projects</h2>
+                <h2>Projects</h2>
                 <div class="line"></div>
             </div>
             <div class="projects-grid">
                 <div class="project-card glass-effect fade-in-up">
-                    <div class="project-image">
-                        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop" alt="E-Commerce Platform">
-                    </div>
-                    <div class="project-info">
-                        <h3>E-Commerce Platform</h3>
-                        <p>A modern e-commerce solution with advanced filtering, cart management, and seamless checkout experience.</p>
-                        <div class="project-tech">
-                            <span>React</span>
-                            <span>Node.js</span>
-                            <span>Stripe</span>
+                    <div class="project-top">
+                        <span class="project-icon">🛒</span>
+                        <div class="project-links">
+                            <a href="#" target="_blank" rel="noopener noreferrer" title="GitHub">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                            </a>
+                            <a href="#" target="_blank" rel="noopener noreferrer" title="Live Demo">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                            </a>
                         </div>
-                        <a href="#" class="btn-link">View Project &rarr;</a>
+                    </div>
+                    <h3>E-Commerce Platform</h3>
+                    <p>A full-featured online store with product listings, cart, authentication, and Stripe payment integration.</p>
+                    <div class="project-tags">
+                        <span>Next.js</span><span>MongoDB</span><span>Stripe</span>
                     </div>
                 </div>
+
                 <div class="project-card glass-effect fade-in-up delay-1">
-                    <div class="project-image">
-                        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop" alt="AI SaaS Dashboard">
-                    </div>
-                    <div class="project-info">
-                        <h3>AI SaaS Dashboard</h3>
-                        <p>An analytics dashboard for AI models, featuring real-time data visualization and interactive charts.</p>
-                        <div class="project-tech">
-                            <span>Next.js</span>
-                            <span>TypeScript</span>
-                            <span>CSS</span>
+                    <div class="project-top">
+                        <span class="project-icon">💬</span>
+                        <div class="project-links">
+                            <a href="#" target="_blank" rel="noopener noreferrer" title="GitHub">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                            </a>
+                            <a href="#" target="_blank" rel="noopener noreferrer" title="Live Demo">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                            </a>
                         </div>
-                        <a href="#" class="btn-link">View Project &rarr;</a>
+                    </div>
+                    <h3>Real-Time Chat App</h3>
+                    <p>A socket-based messaging app with rooms, online presence indicators, and emoji reactions.</p>
+                    <div class="project-tags">
+                        <span>React</span><span>Node.js</span><span>Socket.io</span>
+                    </div>
+                </div>
+
+                <div class="project-card glass-effect fade-in-up delay-2">
+                    <div class="project-top">
+                        <span class="project-icon">📊</span>
+                        <div class="project-links">
+                            <a href="#" target="_blank" rel="noopener noreferrer" title="GitHub">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                            </a>
+                            <a href="#" target="_blank" rel="noopener noreferrer" title="Live Demo">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                            </a>
+                        </div>
+                    </div>
+                    <h3>Analytics Dashboard</h3>
+                    <p>An interactive SaaS dashboard with dynamic charts, dark mode, and real-time data updates.</p>
+                    <div class="project-tags">
+                        <span>React</span><span>Chart.js</span><span>PostgreSQL</span>
                     </div>
                 </div>
             </div>
         </section>
 
+        <!-- ===== EXPERIENCE ===== -->
         <section id="experience" class="experience section">
             <div class="section-header fade-in-up">
                 <h2>Experience</h2>
                 <div class="line"></div>
             </div>
             <div class="timeline">
-                <div class="timeline-item glass-effect fade-in-up">
-                    <div class="timeline-date">2022 - Present</div>
-                    <div class="timeline-content">
-                        <h3>Senior Frontend Developer</h3>
-                        <h4>TechNova Solutions</h4>
-                        <p>Leading the frontend team in building a high-performance CRM system. Improved rendering speeds by 40% and implemented a comprehensive design system.</p>
+                <div class="timeline-item fade-in-up">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content glass-effect">
+                        <span class="timeline-date">2024 – Present</span>
+                        <h3>Freelance Full-Stack Developer</h3>
+                        <p class="timeline-company">Self-Employed</p>
+                        <p>Building bespoke web applications and digital products for clients across multiple industries. Specializing in React/Next.js frontends and Node.js backends.</p>
                     </div>
                 </div>
-                <div class="timeline-item glass-effect fade-in-up">
-                    <div class="timeline-date">2019 - 2022</div>
-                    <div class="timeline-content">
-                        <h3>Full Stack Engineer</h3>
-                        <h4>Creative Minds Agency</h4>
-                        <p>Developed custom web applications for various enterprise clients. Handled everything from database design to UI implementation.</p>
+                <div class="timeline-item fade-in-up delay-1">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content glass-effect">
+                        <span class="timeline-date">2023 – 2024</span>
+                        <h3>Frontend Developer Intern</h3>
+                        <p class="timeline-company">Tech Startup</p>
+                        <p>Developed and maintained responsive UI components, collaborated closely with designers, and improved page load performance by 40%.</p>
+                    </div>
+                </div>
+                <div class="timeline-item fade-in-up delay-2">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content glass-effect">
+                        <span class="timeline-date">2022 – 2023</span>
+                        <h3>UI/UX Design Freelancer</h3>
+                        <p class="timeline-company">Freelance</p>
+                        <p>Designed end-to-end user interfaces for mobile and web applications using Figma, conducting user research and creating high-fidelity prototypes.</p>
                     </div>
                 </div>
             </div>
         </section>
 
+        <!-- ===== CONTACT ===== -->
         <section id="contact" class="contact section">
-            <div class="contact-box glass-effect fade-in-up">
-                <h2>Let's build something amazing together.</h2>
-                <p>I'm currently looking for new opportunities. Whether you have a question or just want to say hi, I'll try my best to get back to you!</p>
-                <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
-                    <a href="mailto:your.email@example.com" class="btn-primary btn-large mt-4">Ask a question</
-                    <a href="https://wa.me/2349044089107" target="_blank" rel="noopener noreferrer" class="btn-primary btn-large mt-4">WhatsApp Me</a>
-                    <a href="https://github.com/bamidelev451-art" target="_blank" rel="noopener noreferrer" class="btn-secondary btn-large mt-4">View my GitHub</a>
+            <div class="section-header fade-in-up">
+                <h2>Get in Touch</h2>
+                <div class="line"></div>
+            </div>
+            <div class="contact-grid fade-in-up">
+                <div class="contact-info">
+                    <p>Have a project in mind? I'd love to hear about it. Send me a message and let's make something great together.</p>
+                    <div class="contact-links">
+                        <a href="mailto:victor@example.com" class="contact-item glass-effect">
+                            <span>📧</span>
+                            <span>victor@example.com</span>
+                        </a>
+                        <a href="https://github.com/bamidelev451-art" target="_blank" rel="noopener noreferrer" class="contact-item glass-effect">
+                            <span>🐙</span>
+                            <span>github.com/bamidelev451-art</span>
+                        </a>
+                        <a href="https://wa.me/00000000000" target="_blank" rel="noopener noreferrer" class="contact-item glass-effect">
+                            <span>💬</span>
+                            <span>WhatsApp Me</span>
+                        </a>
+                    </div>
                 </div>
+                <form class="contact-form glass-effect" id="contactForm" onsubmit="handleFormSubmit(event)">
+                    <div class="form-group">
+                        <label for="name">Your Name</label>
+                        <input type="text" id="name" name="name" placeholder="John Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Your Email</label>
+                        <input type="email" id="email" name="email" placeholder="john@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" rows="5" placeholder="Tell me about your project..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary btn-large" id="submitBtn" style="width:100%;">Send Message ✉️</button>
+                    <p class="form-success" id="formSuccess">✅ Message sent! I'll get back to you soon.</p>
+                </form>
             </div>
         </section>
     </main>
 
-    <footer>
-        <p>Designed and built with &hearts; by Victor Kayode</p>
+    <!-- Footer -->
+    <footer class="footer">
+        <p>Designed &amp; Built by <span class="highlight">Victor Kayode</span> &copy; <span id="year"></span></p>
     </footer>
-<!-- Custom FAQ Chatbot -->
-<div class="chatbot-container">
-    <div class="chat-toggle" id="chatToggle">💬</div>
-    <div class="chat-window" id="chatWindow">
-        <div class="chat-header">
-            <h3>Victor's Assistant</h3>
-            <button id="closeChat">&times;</button>
-        </div>
-        <div class="chat-messages" id="chatMessages">
-            <div class="message bot-message">
-                Hi there! 👋 I'm Victor's automated assistant. What would you like to know?
-            </div>
-            <!-- Options will be injected here by JavaScript -->
-        </div>
-    </div>
-</div>
 
-<script src="script.js"></script>
-</body>
-</html>
+    <!-- ===== CHATBOT ===== -->
+    <div class="chatbot-container" id="chatbotContainer">
+        <div class="chat-window glass-effect" id="chatWindow">
+            <div class="chat-header">
+                <div class="chat-header-info">
+                    <div class="chat-avatar">VK</div>
+                    <div>
+                        <h3>Victor's Assistant</h3>
+                        <span class="chat-status">● Online</span>
+                    </div>
+                </div>
+                <button id="closeChat" aria-label="Close chat">✕</button>
+            </div>
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-input-area" id="chatOptions"></div>
+        </div>
+        <button class="chat-toggle" id="chatToggle" aria-label="Open chat">💬</button>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
