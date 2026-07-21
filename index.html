@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Personal AI Assistant</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Personal AI Assistant</p>
+          <h1>Ask anything, get quick help.</h1>
+          <p class="subtitle">
+            Use this simple assistant for everyday questions, study help, and personal planning.
+          </p>
+        </div>
+      </header>
+
+      <main class="chat-card">
+        <div id="chatBox" class="chat-box" aria-live="polite"></div>
+
+        <form id="chatForm" class="chat-form">
+          <input
+            id="userInput"
+            type="text"
+            placeholder="Type your question here..."
+            autocomplete="off"
+            required
+          />
+          <button type="submit">Ask</button>
+        </form>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
