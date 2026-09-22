@@ -1,0 +1,77 @@
+name: Build Vikola APK
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:   # Allow manual trigger from GitHub UI
+
+jobs:
+  build:
+    name: Build Debug APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Grant Gradle wrapper execute permission
+        run: chmod +x android-app/gradlew
+
+      - name: Generate launcher icons from source image
+        run: |
+          sudo apt-get install -y imagemagick
+          mkdir -p android-app/app/src/main/res/mipmap-mdpi
+          mkdir -p android-app/app/src/main/res/mipmap-hdpi
+          mkdir -p android-app/app/src/main/res/mipmap-xhdpi
+          mkdir -p android-app/app/src/main/res/mipmap-xxhdpi
+          mkdir -p android-app/app/src/main/res/mipmap-xxxhdpi
+          convert android-app/app/src/main/res/drawable/ic_launcher_source.png -resize 48x48   android-app/app/src/main/res/mipmap-mdpi/ic_launcher.png
+          convert android-app/app/src/main/res/drawable/ic_launcher_source.png -resize 72x72   android-app/app/src/main/res/mipmap-hdpi/ic_launcher.png
+          convert android-app/app/src/main/res/drawable/ic_launcher_source.png -resize 96x96   android-app/app/src/main/res/mipmap-xhdpi/ic_launcher.png
+          convert android-app/app/src/main/res/drawable/ic_launcher_source.png -resize 144x144 android-app/app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+          convert android-app/app/src/main/res/drawable/ic_launcher_source.png -resize 192x192 android-app/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+          cp android-app/app/src/main/res/mipmap-mdpi/ic_launcher.png   android-app/app/src/main/res/mipmap-mdpi/ic_launcher_round.png
+          cp android-app/app/src/main/res/mipmap-hdpi/ic_launcher.png   android-app/app/src/main/res/mipmap-hdpi/ic_launcher_round.png
+          cp android-app/app/src/main/res/mipmap-xhdpi/ic_launcher.png  android-app/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png
+          cp android-app/app/src/main/res/mipmap-xxhdpi/ic_launcher.png android-app/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png
+          cp android-app/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png android-app/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png
+
+      - name: Build debug APK
+        run: |
+          cd android-app
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Rename APK
+        run: |
+          mv android-app/app/build/outputs/apk/debug/app-debug.apk \
+             android-app/app/build/outputs/apk/debug/vikola-ai-assistant.apk
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vikola-apk
+          path: android-app/app/build/outputs/apk/debug/vikola-ai-assistant.apk
+          retention-days: 30
+
+      - name: Build summary
+        run: |
+          echo "## ✅ APK Built Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Download **vikola-ai-assistant.apk** from the Artifacts section below." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Install Instructions" >> $GITHUB_STEP_SUMMARY
+          echo "1. Download and extract the zip" >> $GITHUB_STEP_SUMMARY
+          echo "2. Transfer \`vikola-ai-assistant.apk\` to your Android phone" >> $GITHUB_STEP_SUMMARY
+          echo "3. On your phone: Settings → Apps → Special Access → Install Unknown Apps" >> $GITHUB_STEP_SUMMARY
+          echo "4. Enable your file manager to install unknown apps" >> $GITHUB_STEP_SUMMARY
+          echo "5. Open the APK file and install" >> $GITHUB_STEP_SUMMARY

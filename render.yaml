@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: vikola-ai-assistant
+    runtime: python
+    region: oregon
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python server.py"
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: PORT
+        value: "10000"
+    healthCheckPath: /
+    autoDeploy: true

@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0e17" />
+      <stop offset="45%" stop-color="#121829" />
+      <stop offset="100%" stop-color="#070a12" />
+    </linearGradient>
+
+    <!-- Metallic Rim Gradient -->
+    <linearGradient id="rimGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#475569" />
+      <stop offset="50%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#334155" />
+    </linearGradient>
+
+    <!-- Left Arm Cyan Gradient -->
+    <linearGradient id="vLeftGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="60%" stop-color="#06b6d4" />
+      <stop offset="100%" stop-color="#2563eb" />
+    </linearGradient>
+
+    <!-- Right Arm Magenta Gradient -->
+    <linearGradient id="vRightGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="40%" stop-color="#818cf8" />
+      <stop offset="80%" stop-color="#c084fc" />
+      <stop offset="100%" stop-color="#f43f5e" />
+    </linearGradient>
+
+    <!-- Core Bright Highlight -->
+    <linearGradient id="coreGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#38bdf8" />
+    </linearGradient>
+
+    <!-- Outer Glow Filter -->
+    <filter id="neonGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="20" result="blur1" />
+      <feGaussianBlur stdDeviation="40" result="blur2" />
+      <feMerge>
+        <feMergeNode in="blur2" />
+        <feMergeNode in="blur1" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <filter id="subtleGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Squircle Base with Rim -->
+  <rect x="8" y="8" width="496" height="496" rx="116" fill="url(#bgGrad)" stroke="url(#rimGrad)" stroke-width="6" />
+
+  <!-- Subtle Circuit Track Lines in Background -->
+  <g stroke="#1e293b" stroke-width="2" opacity="0.6" fill="none">
+    <path d="M 70 140 H 130 L 160 170" />
+    <path d="M 442 140 H 382 L 352 170" />
+    <path d="M 70 370 H 140 L 170 340" />
+    <path d="M 442 370 H 372 L 342 340" />
+    <circle cx="160" cy="170" r="3" fill="#38bdf8" />
+    <circle cx="352" cy="170" r="3" fill="#c084fc" />
+  </g>
+
+  <!-- Ambient Radiant Halo behind V -->
+  <circle cx="256" cy="270" r="140" fill="#38bdf8" opacity="0.18" filter="url(#neonGlow)" />
+  <circle cx="256" cy="240" r="100" fill="#c084fc" opacity="0.16" filter="url(#neonGlow)" />
+
+  <!-- Stylized Geometric "V" Logo -->
+  <g filter="url(#neonGlow)">
+    <!-- Outer Wing Back Drops -->
+    <path d="M 120 130 L 256 410 L 220 410 L 92 154 Z" fill="url(#vLeftGrad)" opacity="0.4" />
+    <path d="M 392 130 L 256 410 L 292 410 L 420 154 Z" fill="url(#vRightGrad)" opacity="0.4" />
+
+    <!-- Left Main Wing of V -->
+    <path d="M 130 128 L 256 396 L 226 396 L 102 148 L 130 128 Z" fill="url(#vLeftGrad)" />
+    <!-- Left Inner Facet -->
+    <path d="M 148 152 L 244 366 L 224 366 L 134 172 Z" fill="#ffffff" opacity="0.25" />
+
+    <!-- Right Main Wing of V -->
+    <path d="M 382 128 L 256 396 L 286 396 L 410 148 L 382 128 Z" fill="url(#vRightGrad)" />
+    <!-- Right Inner Facet -->
+    <path d="M 364 152 L 268 366 L 288 366 L 378 172 Z" fill="#ffffff" opacity="0.25" />
+
+    <!-- Center Sharp Inner V Neon Chisel -->
+    <path d="M 178 148 L 256 332 L 334 148 L 302 148 L 256 270 L 210 148 Z" fill="url(#coreGlow)" opacity="0.9" />
+
+    <!-- Bottom Vertex Power Diamond -->
+    <polygon points="256,380 268,404 256,428 244,404" fill="#38bdf8" filter="url(#subtleGlow)" />
+  </g>
+
+  <!-- Vertex Energy Starburst -->
+  <circle cx="256" cy="404" r="5" fill="#ffffff" filter="url(#subtleGlow)" />
+</svg>

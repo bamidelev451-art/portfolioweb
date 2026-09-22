@@ -4,3 +4,26 @@ __pycache__/
 *.pyd
 .env
 .DS_Store
+
+# Ignore uploaded user files (keep folder)
+uploads/*
+!uploads/.gitkeep
+
+# Ignore local config with API keys
+config.json
+
+# Ignore ngrok binary
+ngrok.exe
+ngrok
+
+# Ignore IDE / OS files
+.vscode/
+Thumbs.db
+
+# Android build outputs
+.gradle/
+build/
+**/build/
+*.apk
+*.aab
+local.properties

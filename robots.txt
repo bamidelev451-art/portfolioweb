@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /uploads/
+
+Sitemap: https://vikola-ai-assistant.onrender.com/sitemap.xml
