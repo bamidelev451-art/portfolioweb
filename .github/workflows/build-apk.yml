@@ -28,24 +28,6 @@ jobs:
       - name: Grant Gradle wrapper execute permission
         run: chmod +x android-app/gradlew
 
-      - name: Generate launcher icons from source image
-        run: |
-          sudo apt-get install -y imagemagick
-          mkdir -p android-app/app/src/main/res/mipmap-mdpi
-          mkdir -p android-app/app/src/main/res/mipmap-hdpi
-          mkdir -p android-app/app/src/main/res/mipmap-xhdpi
-          mkdir -p android-app/app/src/main/res/mipmap-xxhdpi
-          mkdir -p android-app/app/src/main/res/mipmap-xxxhdpi
-          convert android-app/app/src/main/res/drawable/ic_launcher_source.png -resize 48x48   android-app/app/src/main/res/mipmap-mdpi/ic_launcher.png
-          convert android-app/app/src/main/res/drawable/ic_launcher_source.png -resize 72x72   android-app/app/src/main/res/mipmap-hdpi/ic_launcher.png
-          convert android-app/app/src/main/res/drawable/ic_launcher_source.png -resize 96x96   android-app/app/src/main/res/mipmap-xhdpi/ic_launcher.png
-          convert android-app/app/src/main/res/drawable/ic_launcher_source.png -resize 144x144 android-app/app/src/main/res/mipmap-xxhdpi/ic_launcher.png
-          convert android-app/app/src/main/res/drawable/ic_launcher_source.png -resize 192x192 android-app/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
-          cp android-app/app/src/main/res/mipmap-mdpi/ic_launcher.png   android-app/app/src/main/res/mipmap-mdpi/ic_launcher_round.png
-          cp android-app/app/src/main/res/mipmap-hdpi/ic_launcher.png   android-app/app/src/main/res/mipmap-hdpi/ic_launcher_round.png
-          cp android-app/app/src/main/res/mipmap-xhdpi/ic_launcher.png  android-app/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png
-          cp android-app/app/src/main/res/mipmap-xxhdpi/ic_launcher.png android-app/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png
-          cp android-app/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png android-app/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png
 
       - name: Build debug APK
         run: |
