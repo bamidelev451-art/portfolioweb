@@ -62,6 +62,13 @@ let recordedAudioBlob = null;
 let recordingTimer = null;
 let recordingStartTime = null;
 
+// API Base URL (Auto-routes to Render backend if running on GitHub Pages, Netlify, Vercel, or standalone PWA)
+const API_BASE = (
+  window.location.hostname === 'localhost' ||
+  window.location.hostname === '127.0.0.1' ||
+  window.location.hostname.includes('onrender.com')
+) ? '' : 'https://vikola-ai-assistant.onrender.com';
+
 // Persistent Chat State
 const STORAGE_KEY = 'gemini_pro_chat_history_v2';
 let chatHistory = []; // Array of { id, sender, text, timestamp, isRawHtml, engine, model, rating }
@@ -494,7 +501,7 @@ function hideTypingIndicator() {
 // ==========================================
 async function refreshSettingsStatus() {
   try {
-    const res = await fetch('/api/settings');
+    const res = await fetch(`${API_BASE}/api/settings`);
     if (res.ok) {
       const data = await res.json();
       if (data.configured) {
@@ -519,7 +526,7 @@ async function refreshSettingsStatus() {
 
 function checkLocalClientKey() {
   const localKey = localStorage.getItem('gemini_api_key_client') || '';
-  const localModel = localStorage.getItem('gemini_model_client') || 'gemini-2.0-flash';
+  const localModel = localStorage.getItem('gemini_model_client') || 'gemini-3.6-flash';
   if (localKey) {
     const masked = localKey.length >= 8 ? `${localKey.slice(0, 4)}...${localKey.slice(-4)}` : '***';
     engineBadge.className = 'status-pill online';
@@ -541,18 +548,36 @@ function checkLocalClientKey() {
 
 // Direct Client-Side Gemini Fallback (Zero-Cost Serverless Execution)
 async function callGeminiClientDirect(promptText, apiKey, modelName) {
-  const model = modelName || 'gemini-2.0-flash';
+  const model = modelName || 'gemini-3.6-flash';
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+  // Build conversation history for context (last 8 messages)
+  const contents = [];
+  const historySlice = chatHistory.slice(-8);
+  for (const msg of historySlice) {
+    if (msg.sender === 'user') {
+      contents.push({ role: 'user', parts: [{ text: msg.text }] });
+    } else if (msg.sender === 'bot' && msg.text) {
+      contents.push({ role: 'model', parts: [{ text: msg.text }] });
+    }
+  }
+  // Add the current prompt
+  contents.push({ role: 'user', parts: [{ text: promptText }] });
+
   const payload = {
-    contents: [{ role: 'user', parts: [{ text: promptText }] }],
+    contents,
     systemInstruction: {
       parts: [{
-        text: "You are Vikola, a state-of-the-art mobile AI assistant. Answer accurately, clearly, and concisely in clean Markdown."
+        text: "You are Vikola, a state-of-the-art commercial AI assistant powered by Google Gemini. " +
+              "You answer all questions with high intelligence, factual accuracy, precision, and clarity across " +
+              "all disciplines: mathematics, coding, computer science, physics, chemistry, biology, history, business, logic puzzles, and creative tasks. " +
+              "When providing code, always write clean, production-grade code with appropriate language markdown fences. " +
+              "Format your answers with professional Markdown (headers, bullet points, bold key terms, tables where helpful)."
       }]
     },
     generationConfig: {
       temperature: 0.7,
-      maxOutputTokens: 2048,
+      maxOutputTokens: 8192,
     }
   };
 
@@ -568,10 +593,82 @@ async function callGeminiClientDirect(promptText, apiKey, modelName) {
   }
 
   const data = await res.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  // Collect ALL text parts (thinking models return thoughtSignature in separate parts)
+  const parts = data.candidates?.[0]?.content?.parts || [];
+  const text = parts.filter(p => p.text).map(p => p.text).join('').trim();
   if (!text) throw new Error('No response text returned.');
   return text;
 }
+
+// ==========================================
+// CLIENT-SIDE JAVASCRIPT KNOWLEDGE ENGINE
+// Handles basic questions when server is offline/sleeping
+// ==========================================
+const jsKnowledge = {
+  greet(q) {
+    const nq = q.toLowerCase();
+    if (/\b(hi|hello|hey|good\s*(morning|afternoon|evening|day)|greetings)\b/.test(nq)) {
+      return "Hello! 👋 I am **Vikola**, your AI assistant powered by **Google Gemini**.\n\nI can answer questions about math, science, coding, history, and more. How can I help you today?\n\n> 💡 *The server is starting up — your next message will be handled by full Gemini AI!*";
+    }
+    return null;
+  },
+  identity(q) {
+    const nq = q.toLowerCase();
+    if (/who are you|what('?s| is) your name|your name/.test(nq)) {
+      return "I am **Vikola** 🤖 — your personal AI assistant powered by **Google Gemini**.\n\nI can solve math problems, explain science, write code, analyze images, and much more!";
+    }
+    if (/what can you do|what do you do|your (capabilities|features|abilities)/.test(nq)) {
+      return "Here's what I can do:\n\n- 🧮 **Mathematics** — algebra, calculus, statistics\n- 💻 **Programming** — Python, JavaScript, web dev, debugging\n- 🔬 **Science** — physics, chemistry, biology\n- 📚 **General Knowledge** — history, geography, language\n- 🖼️ **Image Analysis** — send a photo and I'll analyze it\n- 🎙️ **Voice Input** — record audio and I'll transcribe & respond";
+    }
+    return null;
+  },
+  math(q) {
+    // Simple arithmetic
+    const expr = q.replace(/[^0-9+\-*/.() ]/g, '').trim();
+    if (/^[0-9+\-*/.() ]+$/.test(expr) && /[+\-*/]/.test(expr) && expr.length > 2) {
+      try {
+        const result = Function('"use strict"; return (' + expr + ')')();
+        if (typeof result === 'number' && isFinite(result)) {
+          return `**Math Result:**\n\n\`${expr.trim()}\` = **${Number.isInteger(result) ? result : result.toFixed(4)}**`;
+        }
+      } catch(e) {}
+    }
+    // Percentage
+    const pct = q.match(/(\d+\.?\d*)%\s*of\s*(\d+\.?\d*)/i);
+    if (pct) {
+      const result = (parseFloat(pct[1]) / 100) * parseFloat(pct[2]);
+      return `**${pct[1]}%** of **${pct[2]}** = **${Number.isInteger(result) ? result : result.toFixed(2)}**`;
+    }
+    return null;
+  },
+  common(q) {
+    const nq = q.toLowerCase();
+    const today = new Date();
+    if (/what('?s| is) the (date|today|day)/.test(nq)) {
+      return `Today is **${today.toLocaleDateString('en-US', {weekday:'long', year:'numeric', month:'long', day:'numeric'})}**.`;
+    }
+    if (/what('?s| is) the time/.test(nq)) {
+      return `The current time is **${today.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'})}**.`;
+    }
+    if (/\b(thank you|thanks|thank u)\b/.test(nq)) {
+      return "You're welcome! 😊 Ask me anything else!";
+    }
+    if (/\b(ok|okay|got it|sure|alright)\b/.test(nq)) {
+      return "Got it! Feel free to ask me anything — math, coding, science, or any other topic. 😊";
+    }
+    if (/\b(bye|goodbye|see you|cya)\b/.test(nq)) {
+      return "Goodbye! 👋 Come back anytime you need help. Have a great day!";
+    }
+    return null;
+  },
+  answer(question) {
+    return this.greet(question)
+        || this.identity(question)
+        || this.math(question)
+        || this.common(question)
+        || null;
+  }
+};
 
 // ==========================================
 // QUESTION SUBMISSION
@@ -580,29 +677,28 @@ async function sendQuestion(question) {
   showTypingIndicator();
 
   let handled = false;
+
+  // --- Step 1: Try the backend server (with generous timeout for Render wake-up) ---
   try {
     let response;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s to let Render wake up
+
     if (attachedImageFile || recordedAudioBlob) {
       const formData = new FormData();
       formData.append('question', question);
-      if (attachedImageFile) {
-        formData.append('image', attachedImageFile, attachedImageFile.name);
-      }
-      if (recordedAudioBlob) {
-        formData.append('audio', recordedAudioBlob, 'voice_recording.webm');
-      }
-
-      response = await fetch('/ask', {
-        method: 'POST',
-        body: formData,
-      });
+      if (attachedImageFile) formData.append('image', attachedImageFile, attachedImageFile.name);
+      if (recordedAudioBlob) formData.append('audio', recordedAudioBlob, 'voice_recording.webm');
+      response = await fetch(`${API_BASE}/ask`, { method: 'POST', body: formData, signal: controller.signal });
     } else {
-      response = await fetch('/ask', {
+      response = await fetch(`${API_BASE}/ask`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question }),
+        signal: controller.signal,
       });
     }
+    clearTimeout(timeoutId);
 
     if (response.ok) {
       const data = await response.json();
@@ -616,41 +712,81 @@ async function sendQuestion(question) {
       }
     }
   } catch (err) {
-    // Backend fetch failed (e.g. server down or static host)
+    // Server is sleeping or unreachable — continue to fallbacks
   }
 
-  // If backend didn't handle it, try direct client-side Gemini call
+  // --- Step 2: Try direct client-side Gemini call if user has an API key saved ---
   if (!handled) {
     const clientKey = localStorage.getItem('gemini_api_key_client');
-    const clientModel = localStorage.getItem('gemini_model_client') || 'gemini-2.0-flash';
+    const clientModel = localStorage.getItem('gemini_model_client') || 'gemini-3.6-flash';
     if (clientKey) {
       try {
         const directAnswer = await callGeminiClientDirect(question, clientKey, clientModel);
         hideTypingIndicator();
         streamBotMessage(directAnswer, 'gemini-direct', clientModel);
         engineBadge.className = 'status-pill online';
-        engineBadge.textContent = `✨ ${clientModel} (Online)`;
+        engineBadge.textContent = `✨ ${clientModel} (Direct)`;
         handled = true;
       } catch (geminiErr) {
-        hideTypingIndicator();
-        addMessage(`⚠️ **Gemini API Error:** ${geminiErr.message}`, 'bot');
-        handled = true;
+        // Direct Gemini also failed — continue to local fallback
       }
     }
   }
 
+  // --- Step 3: Client-side JS knowledge engine (always works, no internet needed) ---
+  if (!handled) {
+    const localAnswer = jsKnowledge.answer(question);
+    if (localAnswer) {
+      hideTypingIndicator();
+      streamBotMessage(localAnswer, 'local', 'offline-mode');
+      engineBadge.className = 'status-pill fallback';
+      engineBadge.textContent = '⚡ Local Mode';
+      handled = true;
+    }
+  }
+
+  // --- Step 4: Friendly "server is starting up" message (instead of cold "Offline" error) ---
   if (!handled) {
     hideTypingIndicator();
-    addMessage(
-      `⚠️ **Offline / Standalone Mode:** Unable to connect to server.\n\n` +
-      `💡 *Tip: You can use Vikola 100% serverless by adding your free Gemini API key in **Settings (⚙️)**!*`,
-      'bot'
-    );
+    const retryMsg = document.createElement('div');
+    retryMsg.className = 'message-row bot';
+    retryMsg.innerHTML = `
+      <div class="avatar">✨</div>
+      <div class="message-content">
+        <div class="message-bubble">
+          <p>⏳ <strong>Server is starting up…</strong></p>
+          <p>Vikola's server went to sleep after inactivity (free hosting). It usually wakes up in <strong>10–20 seconds</strong>.</p>
+          <p style="margin-top:10px">
+            <button onclick="retryQuestion(${JSON.stringify(question)})" style="background:#6c63ff;color:#fff;border:none;padding:8px 18px;border-radius:8px;cursor:pointer;font-size:14px;">
+              🔄 Retry Now
+            </button>
+          </p>
+          <p style="margin-top:10px;font-size:13px;opacity:0.75">💡 <em>Tip: Add your free Gemini API key in <strong>Settings (⚙️)</strong> for instant replies even when the server is sleeping.</em></p>
+        </div>
+        <div class="message-meta"><span class="message-time">${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span></div>
+      </div>`;
+    chatBox.appendChild(retryMsg);
+    chatBox.scrollTop = chatBox.scrollHeight;
+    engineBadge.className = 'status-pill fallback';
+    engineBadge.textContent = '⚡ Server Starting…';
+
+    // Auto-retry after 12 seconds
+    setTimeout(() => {
+      if (retryMsg.parentNode) {
+        retryMsg.remove();
+        sendQuestion(question);
+      }
+    }, 12000);
   }
 
   // Clear attachments
   clearAttachments();
 }
+
+// Exposed for the retry button inside the message bubble
+window.retryQuestion = function(question) {
+  sendQuestion(question);
+};
 
 function clearAttachments() {
   attachedImageFile = null;
@@ -809,7 +945,7 @@ function handleClearChat() {
     chatHistory = [];
     localStorage.removeItem(STORAGE_KEY);
     try {
-      fetch('/api/clear', { method: 'POST' });
+      fetch(`${API_BASE}/api/clear`, { method: 'POST' });
     } catch (e) {}
     addMessage('Conversation cleared. How can I help you next?', 'bot');
   }
@@ -972,7 +1108,7 @@ saveSettingsBtn.addEventListener('click', async () => {
 
   let backendSuccess = false;
   try {
-    const res = await fetch('/api/settings', {
+    const res = await fetch(`${API_BASE}/api/settings`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ apiKey, model }),

@@ -1,4 +1,12 @@
-import json, urllib.request
+import json
+import sys
+import urllib.request
+
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
 qs = ['What is an adjective?','define adjective','what is a noun','what is a program','what is Charles law','what is Boyle\'s law','What is Fitna?']
 for q in qs:
     data = json.dumps({'question': q}).encode('utf-8')

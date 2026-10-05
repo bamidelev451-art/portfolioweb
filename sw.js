@@ -4,7 +4,7 @@
 // and PWA installability across all mobile devices
 // ==========================================
 
-const CACHE_NAME = 'vikola-pwa-v1';
+const CACHE_NAME = 'vikola-pwa-v2';
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',

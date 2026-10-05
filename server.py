@@ -5,12 +5,20 @@ import mimetypes
 import os
 import re
 import shutil
+import sys
 import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
 
 ROOT = Path(__file__).resolve().parent
 UPLOAD_DIR = ROOT / "uploads"
@@ -78,12 +86,11 @@ class GeminiClient:
 
         for fallback_m in [
             "gemini-3.6-flash",
-            "gemini-3.7-flash",
-            "gemini-3.8-flash",
-            "gemini-3.1-flash-lite",
-            "gemini-flash-latest",
-            "gemini-pro-latest",
-            "gemini-3-flash-preview",
+            "gemini-2.5-flash",
+            "gemini-2.5-pro",
+            "gemini-2.0-flash",
+            "gemini-1.5-flash",
+            "gemini-1.5-pro",
         ]:
             if fallback_m not in candidate_models:
                 candidate_models.append(fallback_m)
@@ -213,19 +220,18 @@ class GeminiClient:
             "systemInstruction": system_instruction,
             "generationConfig": {
                 "temperature": self.temperature,
-                "maxOutputTokens": 2048,
+                "maxOutputTokens": 8192,
             }
         }
 
         FALLBACK_MODELS = [
             self.model,
             "gemini-3.6-flash",
-            "gemini-3.7-flash",
-            "gemini-3.8-flash",
-            "gemini-3.1-flash-lite",
-            "gemini-flash-latest",
-            "gemini-pro-latest",
-            "gemini-3-flash-preview",
+            "gemini-2.5-flash",
+            "gemini-2.5-pro",
+            "gemini-2.0-flash",
+            "gemini-1.5-flash",
+            "gemini-1.5-pro",
         ]
         # Deduplicate while preserving order
         seen = set()
@@ -247,12 +253,16 @@ class GeminiClient:
                     if candidates:
                         first = candidates[0]
                         parts = first.get("content", {}).get("parts", [])
-                        if parts and "text" in parts[0]:
+                        # Collect text from ALL parts (thinking models return
+                        # thoughtSignature alongside text in separate parts)
+                        text_parts = [p["text"] for p in parts if "text" in p]
+                        full_text = "".join(text_parts).strip()
+                        if full_text:
                             # If we fell back, persist the working model
                             if try_model != self.model:
                                 self.model = try_model
                                 save_config({"model_name": try_model})
-                            return parts[0]["text"], True
+                            return full_text, True
                     return "Gemini did not return a response.", False
             except urllib.error.HTTPError as e:
                 err_body = e.read().decode("utf-8", errors="ignore")
@@ -341,6 +351,9 @@ class FallbackKnowledgeEngine:
             "alan turing": "Alan Turing (1912-1954) was a British mathematician, computer scientist, and cryptanalyst widely considered the father of theoretical computer science and artificial intelligence. He formalized computation with the Turing Machine and led the codebreaking of the German Enigma cipher at Bletchley Park.",
             "quantum computing": "Quantum computing is a rapidly-emerging technology that harnesses the laws of quantum mechanics (superposition and entanglement) to solve problems too complex for classical computers.",
             "speed of light": "The speed of light in vacuum is exactly 299,792,458 meters per second (approximately 300,000 km/s or 186,282 miles per second), denoted as 'c' in physics.",
+            "program": "A **computer program** is a structured collection of instructions, logic, and procedures written in a programming language that a computer processor executes to perform a specific task or solve a computational problem.",
+            "computer program": "A **computer program** is a structured collection of instructions, logic, and procedures written in a programming language that a computer processor executes to perform a specific task or solve a computational problem.",
+            "fitna": "Fitna (Arabic: فِتْنَة) is an Arabic term with deep linguistic, cultural, and theological meaning. Literally denoting a process of refining gold by fire to purge impurities, it signifies a **trial**, **test**, **affliction**, or **tribulation**. Historically and theologically, it refers to severe spiritual and moral trials, as well as periods of civil strife and conflict within a community.",
         }
 
         self.capitals = {
@@ -470,6 +483,105 @@ class FallbackKnowledgeEngine:
                 "3. **Turing Test (1950):** Introduced the foundational benchmark for assessing whether a machine can exhibit intelligent human behavior."
             )
 
+        # Fibonacci Number / Function
+        if "fibonacci" in clean:
+            return (
+                "**Python Fibonacci Implementation:**\n\n"
+                "Here is an efficient $O(n)$ solution to compute the nth Fibonacci number:\n\n"
+                "```python\n"
+                "def fibonacci(n: int) -> int:\n"
+                "    \"\"\"Return the nth Fibonacci number using iterative O(n) time and O(1) space.\"\"\"\n"
+                "    if n < 0:\n"
+                "        raise ValueError(\"n must be non-negative\")\n"
+                "    if n in (0, 1):\n"
+                "        return n\n"
+                "    a, b = 0, 1\n"
+                "    for _ in range(2, n + 1):\n"
+                "        a, b = b, a + b\n"
+                "    return b\n\n"
+                "# Example sequence: [0, 1, 1, 2, 3, 5, 8, 13, 21, 34...]\n"
+                "print([fibonacci(i) for i in range(10)])\n"
+                "# Output: [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]\n"
+                "```\n\n"
+                "- **Time Complexity:** $O(n)$\n"
+                "- **Space Complexity:** $O(1)$"
+            )
+
+        # Factorial
+        if "factorial" in clean:
+            return (
+                "**Python Factorial Implementation:**\n\n"
+                "```python\n"
+                "def factorial(n: int) -> int:\n"
+                "    \"\"\"Compute factorial of n (n!).\"\"\"\n"
+                "    if n < 0:\n"
+                "        raise ValueError(\"Factorial is not defined for negative numbers\")\n"
+                "    result = 1\n"
+                "    for i in range(2, n + 1):\n"
+                "        result *= i\n"
+                "    return result\n\n"
+                "# Example:\n"
+                "print(factorial(5))  # Output: 120 (5 * 4 * 3 * 2 * 1)\n"
+                "```\n\n"
+                "- **Time Complexity:** $O(n)$\n"
+                "- **Space Complexity:** $O(1)$"
+            )
+
+        # Prime Number Check
+        if "prime" in clean and ("check" in clean or "function" in clean or "number" in clean or "one-liner" in clean):
+            return (
+                "**Prime Number Check:**\n\n"
+                "A **prime number** is a natural number strictly greater than 1 that has no positive divisors other than 1 and itself.\n\n"
+                "```python\n"
+                "def is_prime(n: int) -> bool:\n"
+                "    \"\"\"Check if n is prime in O(sqrt(n)) time.\"\"\"\n"
+                "    if n <= 1:\n"
+                "        return False\n"
+                "    if n <= 3:\n"
+                "        return True\n"
+                "    if n % 2 == 0 or n % 3 == 0:\n"
+                "        return False\n"
+                "    i = 5\n"
+                "    while i * i <= n:\n"
+                "        if n % i == 0 or n % (i + 2) == 0:\n"
+                "            return False\n"
+                "        i += 6\n"
+                "    return True\n\n"
+                "# Examples:\n"
+                "print(is_prime(29))  # True\n"
+                "print(is_prime(30))  # False\n"
+                "```"
+            )
+
+        # Poetry / Creative Verse
+        if re.search(r"\b(poem|poetry|rhyme|verse)\b", clean):
+            if "star" in clean:
+                return (
+                    "**A Short Poem About the Stars:**\n\n"
+                    "Silent lanterns in the deep,\n"
+                    "Guarding secrets while we sleep.\n"
+                    "Silver sparks in boundless night,\n"
+                    "Whispering ancient words of light."
+                )
+            return (
+                "**Poem:**\n\n"
+                "Across the quiet expanse of mind,\n"
+                "Wonders and equations intertwine.\n"
+                "A spark of code, a thought set free,\n"
+                "Crafting new worlds for you and me."
+            )
+
+        # Meaning of Life
+        if "meaning of life" in clean:
+            return (
+                "**The Meaning of Life:**\n\n"
+                "The meaning of life is one of humanity's most enduring questions across philosophy, science, and literature:\n\n"
+                "1. **Existentialism (Sartre, Frankl, Camus):** Meaning is not pre-assigned; we actively construct our own purpose through conscious choices, authentic actions, and enduring love.\n"
+                "2. **Stoicism & Virtue (Marcus Aurelius):** Purpose is realized by cultivating reason, integrity, resilience, and contributing to the flourishing of the human community.\n"
+                "3. **Biological & Evolutionary Lens:** Life perpetuates order, adaptation, consciousness, and the transmission of information across generations.\n"
+                "4. **Humanistic Perspective:** Finding joy in curiosity, creative expression, connection with others, and leaving the world kinder than we found it."
+            )
+
         # Simple Interest
         if "simple interest" in clean:
             return (
@@ -587,10 +699,16 @@ class FallbackKnowledgeEngine:
             return f"Today is **{datetime.now().strftime('%A, %B %d, %Y')}**."
 
         # 4. Capitals
-        if "capital of" in nq or "what is the capital" in nq:
+        if "capital" in nq:
+            matched = []
             for country, capital in self.capitals.items():
-                if country in nq:
-                    return f"The capital of **{country.title()}** is **{capital}**."
+                if re.search(r"\b" + re.escape(country) + r"\b", nq):
+                    matched.append((country, capital))
+            if len(matched) == 1:
+                return f"The capital of **{matched[0][0].title()}** is **{matched[0][1]}**."
+            elif len(matched) > 1:
+                lines = [f"- The capital of **{c.title()}** is **{cap}**." for c, cap in matched]
+                return "**Capitals:**\n\n" + "\n".join(lines)
 
         # 5. Math, Riddles & Logic
         math_sol = self.solve_math(q)
@@ -609,9 +727,14 @@ class FallbackKnowledgeEngine:
         if cq in self.knowledge:
             return f"**{cq.title()}:**\n\n{self.knowledge[cq]}"
 
-        for term, fact in self.knowledge.items():
-            if term in nq or term in clean_nq or term in possessive_stripped or term == cq:
-                return f"**{term.title()}:**\n\n{fact}"
+        # Search knowledge terms using word boundary and preferring longer matches first
+        is_coding_request = bool(re.search(r"\b(write|create|implement|code|function|script|def|class)\b", nq))
+        sorted_terms = sorted(self.knowledge.keys(), key=len, reverse=True)
+        for term in sorted_terms:
+            if is_coding_request and term in ["python", "javascript", "html", "css", "git"]:
+                continue
+            if re.search(r"\b" + re.escape(term) + r"\b", nq) or re.search(r"\b" + re.escape(term) + r"\b", clean_nq):
+                return f"**{term.title()}:**\n\n{self.knowledge[term]}"
 
         # 7. Wikipedia REST API with clean term
         wiki = self.fetch_wikipedia(q)
@@ -686,13 +809,22 @@ class PersonalAssistant:
                     "model": self.gemini.model,
                 }
                 if q:
+                    # Cap cache at 200 entries to prevent memory bloat
+                    if len(self.query_cache) >= 200:
+                        oldest_key = next(iter(self.query_cache))
+                        del self.query_cache[oldest_key]
                     self.query_cache[cache_key] = result
                 return result
             else:
-                # If Gemini returned an error or quota limit, seamlessly serve fallback answer
+                # Gemini failed — serve fallback but DO NOT cache so next
+                # request retries Gemini (it may have been a transient error)
                 fallback_ans = self.fallback.answer(q)
+                error_note = (
+                    "\n\n> ⚠️ **Note:** Gemini AI is temporarily unavailable. "
+                    "This answer comes from the offline knowledge engine. Please try again shortly."
+                )
                 result = {
-                    "answer": fallback_ans,
+                    "answer": fallback_ans + error_note,
                     "engine": "fallback",
                     "model": "offline_knowledge_engine",
                 }
@@ -718,6 +850,15 @@ assistant = PersonalAssistant()
 
 
 class Handler(BaseHTTPRequestHandler):
+    def do_OPTIONS(self):
+        """Handle CORS preflight requests from browsers."""
+        self.send_response(204)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        self.send_header("Access-Control-Max-Age", "86400")
+        self.end_headers()
+
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
@@ -729,7 +870,7 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json({
                 "hasKey": bool(key),
                 "maskedKey": masked,
-                "model": config.get("model_name", "gemini-2.0-flash"),
+                "model": config.get("model_name", "gemini-3.6-flash"),
                 "configured": bool(key),
             })
             return
@@ -770,7 +911,7 @@ class Handler(BaseHTTPRequestHandler):
             try:
                 data = json.loads(raw_bytes.decode("utf-8")) if raw_bytes else {}
                 new_key = data.get("apiKey", "").strip()
-                new_model = data.get("model", "gemini-2.0-flash").strip()
+                new_model = data.get("model", "gemini-3.6-flash").strip()
 
                 if new_key:
                     # Validate key with test ping — auto-detects working model
@@ -921,6 +1062,10 @@ class Handler(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
+    ThreadingHTTPServer.allow_reuse_address = True
     server = ThreadingHTTPServer(("0.0.0.0", port), Handler)
-    print(f"AI Assistant Server running at http://0.0.0.0:{port}")
-    server.serve_forever()
+    print(f"AI Assistant Server running at http://0.0.0.0:{port}", flush=True)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\nServer stopped.", flush=True)
