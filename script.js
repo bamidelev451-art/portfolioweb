@@ -192,6 +192,9 @@ function loadHistory() {
 
 // Render a saved or new message into the DOM
 function renderMessageToDOM(msg, shouldScroll = true) {
+  const welcomeHero = document.getElementById('welcomeHero');
+  if (welcomeHero) welcomeHero.style.display = 'none';
+
   const row = document.createElement('div');
   row.className = `message-row ${msg.sender}`;
   row.id = msg.id;
@@ -311,6 +314,9 @@ function addMessage(text, sender, isRawHtml = false, engine = null, model = null
 
 // Progressive Typewriter Streaming for Bot Responses
 function streamBotMessage(fullText, engine, model) {
+  const welcomeHero = document.getElementById('welcomeHero');
+  if (welcomeHero) welcomeHero.style.display = 'none';
+
   const msgId = generateId();
   const timestamp = formatCurrentTime();
 
@@ -938,16 +944,40 @@ function renderPreview() {
   }
 }
 
-// Clear Chat Button
 function handleClearChat() {
-  if (confirm('Are you sure you want to clear this conversation?')) {
-    chatBox.innerHTML = '';
+  if (confirm('Start a new conversation?')) {
     chatHistory = [];
     localStorage.removeItem(STORAGE_KEY);
     try {
       fetch(`${API_BASE}/api/clear`, { method: 'POST' });
     } catch (e) {}
-    addMessage('Conversation cleared. How can I help you next?', 'bot');
+    chatBox.innerHTML = `
+      <div id="welcomeHero" class="welcome-hero">
+        <div class="hero-sparkle">✨</div>
+        <h1 class="hero-title">How can I help you today?</h1>
+        <p class="hero-sub">Ask anything across math, programming, science, creative ideas, or upload images & audio.</p>
+        
+        <div class="prompt-grid">
+          <button class="prompt-card suggestion-chip" data-prompt="Solve for x: 3x + 15 = 45">
+            <span class="prompt-icon">📐</span>
+            <span class="prompt-text"><strong>Solve Equation</strong><small>Solve 3x + 15 = 45</small></span>
+          </button>
+          <button class="prompt-card suggestion-chip" data-prompt="Write a Python one-liner to check if a string is a palindrome.">
+            <span class="prompt-icon">🐍</span>
+            <span class="prompt-text"><strong>Python Code</strong><small>Check palindrome string</small></span>
+          </button>
+          <button class="prompt-card suggestion-chip" data-prompt="State Charles's law in chemistry and give an example.">
+            <span class="prompt-icon">⚖️</span>
+            <span class="prompt-text"><strong>Chemistry Law</strong><small>Explain Charles's Law</small></span>
+          </button>
+          <button class="prompt-card suggestion-chip" data-prompt="Explain quantum computing in simple terms.">
+            <span class="prompt-icon">⚛️</span>
+            <span class="prompt-text"><strong>Explain Concept</strong><small>Quantum computing basics</small></span>
+          </button>
+        </div>
+      </div>
+    `;
+    attachPromptListeners();
   }
 }
 clearChatBtn.addEventListener('click', handleClearChat);
@@ -1178,17 +1208,21 @@ if (activateKeyBtn) {
   });
 }
 
-// Prompt Suggestion Chips Click
-document.querySelectorAll('.suggestion-chip').forEach((chip) => {
-  chip.addEventListener('click', () => {
-    const prompt = chip.getAttribute('data-prompt');
-    if (prompt) {
-      userInput.value = prompt;
-      userInput.focus();
-      chatForm.dispatchEvent(new Event('submit'));
-    }
+function attachPromptListeners() {
+  document.querySelectorAll('.suggestion-chip').forEach((chip) => {
+    chip.onclick = () => {
+      const prompt = chip.getAttribute('data-prompt');
+      if (prompt) {
+        userInput.value = prompt;
+        userInput.focus();
+        chatForm.dispatchEvent(new Event('submit'));
+      }
+    };
   });
-});
+}
+
+// Prompt Suggestion Chips Click
+attachPromptListeners();
 
 // ==========================================
 // PWA INSTALLATION & SERVICE WORKER
@@ -1220,10 +1254,6 @@ function isIOSDevice() {
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-
-  if (!isRunningStandalone() && !sessionStorage.getItem('pwa_banner_dismissed')) {
-    if (pwaInstallBanner) pwaInstallBanner.style.display = 'flex';
-  }
 });
 
 // Trigger install flow
@@ -1242,14 +1272,10 @@ function triggerInstallFlow() {
 
   if (deferredPrompt) {
     deferredPrompt.prompt();
-    deferredPrompt.userChoice.then((choiceResult) => {
-      if (choiceResult.outcome === 'accepted') {
-        if (pwaInstallBanner) pwaInstallBanner.style.display = 'none';
-      }
+    deferredPrompt.userChoice.then(() => {
       deferredPrompt = null;
     });
   } else {
-    // Show install instructions modal
     if (nativeInstallSection) nativeInstallSection.style.display = 'block';
     if (iosInstallSection) iosInstallSection.style.display = 'none';
     if (installModal) installModal.style.display = 'flex';
@@ -1265,11 +1291,8 @@ if (executeInstallBtn) {
   executeInstallBtn.addEventListener('click', () => {
     if (deferredPrompt) {
       deferredPrompt.prompt();
-      deferredPrompt.userChoice.then((choiceResult) => {
-        if (choiceResult.outcome === 'accepted') {
-          if (installModal) installModal.style.display = 'none';
-          if (pwaInstallBanner) pwaInstallBanner.style.display = 'none';
-        }
+      deferredPrompt.userChoice.then(() => {
+        if (installModal) installModal.style.display = 'none';
         deferredPrompt = null;
       });
     } else {
@@ -1290,69 +1313,11 @@ if (cancelInstallModalBtn) {
   });
 }
 
-if (dismissBannerBtn) {
-  dismissBannerBtn.addEventListener('click', () => {
-    if (pwaInstallBanner) pwaInstallBanner.style.display = 'none';
-    sessionStorage.setItem('pwa_banner_dismissed', 'true');
-  });
-}
-
 // App installed successfully event
 window.addEventListener('appinstalled', () => {
   deferredPrompt = null;
-  if (pwaInstallBanner) pwaInstallBanner.style.display = 'none';
   if (installModal) installModal.style.display = 'none';
-  addMessage('🎉 **Vikola Mobile App installed successfully!** You can now launch it anytime directly from your Home Screen with offline access.', 'bot');
 });
-
-// ==========================================
-// MOBILE BOTTOM NAVIGATION
-// ==========================================
-function setActiveNavTab(activeTab) {
-  document.querySelectorAll('.nav-tab').forEach((tab) => {
-    if (tab !== navTabInstall) {
-      tab.classList.toggle('active', tab === activeTab);
-    }
-  });
-}
-
-if (navTabChat) {
-  navTabChat.addEventListener('click', () => {
-    setActiveNavTab(navTabChat);
-    chatBox.scrollTop = chatBox.scrollHeight;
-    userInput.focus();
-  });
-}
-
-if (navTabPrompts) {
-  navTabPrompts.addEventListener('click', () => {
-    setActiveNavTab(navTabPrompts);
-    const tray = document.getElementById('suggestionsTray');
-    if (tray) {
-      tray.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  });
-}
-
-if (navTabSearch) {
-  navTabSearch.addEventListener('click', () => {
-    setActiveNavTab(navTabSearch);
-    if (searchBarContainer) {
-      const isHidden = searchBarContainer.style.display === 'none';
-      searchBarContainer.style.display = isHidden ? 'flex' : 'none';
-      if (isHidden && chatSearchInput) {
-        chatSearchInput.focus();
-      }
-    }
-  });
-}
-
-if (navTabSettings) {
-  navTabSettings.addEventListener('click', () => {
-    setActiveNavTab(navTabSettings);
-    if (settingsModal) settingsModal.style.display = 'flex';
-  });
-}
 
 // ==========================================
 // INITIALIZATION ON PAGE LOAD
@@ -1361,23 +1326,13 @@ window.addEventListener('load', () => {
   loadHistory();
 
   if (chatHistory.length > 0) {
+    const hero = document.getElementById('welcomeHero');
+    if (hero) hero.style.display = 'none';
     chatHistory.forEach((msg) => renderMessageToDOM(msg, false));
     chatBox.scrollTop = chatBox.scrollHeight;
   } else {
-    addMessage(
-      "Hello! I am **Vikola**, your personal AI assistant powered with **Google Gemini intelligence**.\n\n" +
-      "You can ask me any question across math, programming, science, data analysis, or attach images & voice recordings.\n\n" +
-      "*Tip: To install Vikola as a standalone mobile app on your phone, tap **Install** in the bottom bar.*",
-      'bot'
-    );
+    attachPromptListeners();
   }
 
   refreshSettingsStatus();
-
-  // Show banner on mobile devices if not installed
-  if (!isRunningStandalone() && !sessionStorage.getItem('pwa_banner_dismissed')) {
-    setTimeout(() => {
-      if (pwaInstallBanner) pwaInstallBanner.style.display = 'flex';
-    }, 1500);
-  }
 });
